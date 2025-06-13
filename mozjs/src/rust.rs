@@ -1020,7 +1020,10 @@ impl<'a> CapturedJSStack<'a> {
                 return None;
             }
 
-            Some(jsstr_to_string(self.cx, string_handle.get()))
+            Some(jsstr_to_string(
+                self.cx.as_mut().unwrap(),
+                string_handle.get().as_mut().unwrap(),
+            ))
         }
     }
 

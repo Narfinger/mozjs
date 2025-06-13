@@ -20,6 +20,7 @@ crown = ['mozjs_sys/crown']
 libc.workspace = true
 log = "0.4"
 mozjs_sys = { path = "../mozjs-sys" }
+encoding_rs = { version = "0.8.35" }
 
 [build-dependencies]
 cc.workspace = true

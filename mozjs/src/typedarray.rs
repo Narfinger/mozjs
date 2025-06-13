@@ -98,7 +98,7 @@ impl JSObjectStorage for Box<Heap<*mut JSObject>> {
 impl<T: TypedArrayElement, S: JSObjectStorage> FromJSValConvertible for TypedArray<T, S> {
     type Config = ();
     unsafe fn from_jsval(
-        _cx: *mut JSContext,
+        _cx: &mut JSContext,
         value: HandleValue,
         _option: (),
     ) -> Result<ConversionResult<Self>, ()> {
