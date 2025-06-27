@@ -48,7 +48,6 @@ use log::debug;
 use mozjs_sys::jsgc::Rooted;
 use std::borrow::Cow;
 use std::mem;
-use std::mem::MaybeUninit;
 use std::rc::Rc;
 use std::{ptr, slice};
 
