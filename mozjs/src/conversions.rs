@@ -525,7 +525,47 @@ impl FromJSValConvertible for f64 {
     }
 }
 
-/// Copies chars to the string
+#[cfg(all(
+    any(target_arch = "x86", target_arch = "x86_64"),
+    any(target_feature = "avx", target_feature = "sse2")
+))]
+/// Copies chars to the string using simd instructions
+unsafe fn fast_copy(chars: &[u8]) -> String {
+    use std::arch::x86_64;
+
+    let mut s = String::with_capacity(chars.len());
+    let mut count = 0;
+    let num_iter = chars.len() / 32;
+    let v = s.as_mut_vec();
+    (0..num_iter).for_each(|i| {
+        if cfg!(target_feature = "avx") {
+            let simd =
+                x86_64::_mm256_loadu_si256(chars.as_ptr().add(i * 32) as *const x86_64::__m256i);
+            x86_64::_mm256_storeu_si256(v.as_ptr().add(i * 32) as *mut x86_64::__m256i, simd);
+            count += 32;
+        } else {
+            let simd = x86_64::_mm_load_si128(chars.as_ptr().add(i * 16) as *const x86_64::__m128i);
+            x86_64::_mm_store_si128(v.as_ptr().add(i * 16) as *mut x86_64::__m128i, simd);
+            count += 16;
+        }
+    });
+
+    // bytes that do not fit into the simd instruction
+    for i in count..chars.len() {
+        chars.as_ptr().add(i).copy_to(v.as_mut_ptr().add(i), 1);
+        count += 1;
+    }
+    v.set_len(count);
+    s
+}
+
+#[cfg(not(any(
+    all(
+        any(target_arch = "x86", target_arch = "x86_64"),
+        any(target_feature = "avx", target_feature = "sse"),
+    )
+)))]
+/// Copies chars to the string using a slower method instructions
 unsafe fn fast_copy(chars: &[u8]) -> String {
     let mut v = Vec::with_capacity(chars.len() * 2);
     v.set_len(chars.len() * 2);
