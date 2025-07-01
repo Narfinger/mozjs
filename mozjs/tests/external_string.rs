@@ -38,7 +38,7 @@ fn external_string() {
 
         test_latin1_string(context, "test latin1");
         test_latin1_string(context, "abcdefghijklmnop"); // exactly 16 bytes
-        test_latin1_string(context, "abcdefghijklmnopq"); // 18 bytes
+        test_latin1_string(context, "abcdefghijklmnopq"); // 17 bytes
         test_latin1_string(context, "abcdefghijklmno"); // 15 bytes
         test_latin1_string(context, "abcdefghijklmnopqrstuvwxyzabcdef"); //32 bytes
         test_latin1_string(context, "abcdefghijklmnopqrstuvwxyzabcde"); //31 bytes
