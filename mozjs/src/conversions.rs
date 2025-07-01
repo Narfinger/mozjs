@@ -559,11 +559,34 @@ unsafe fn fast_copy(chars: &[u8]) -> String {
     s
 }
 
+#[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+unsafe fn fast_copy(chars: &[u8]) -> String {
+    let mut s = String::with_capacity(chars.len());
+    let mut count = 0;
+    let num_iter = chars.len() / 32;
+    let v = s.as_mut_vec();
+    (0..num_iter).for_each(|i| {
+        let simd = aarch64::vld1_u8_x4(chars.as_ptr().add(i * 32) as *const aarch64::uint8x16x4);
+        aarch64::vsd1_u8_x4(v.as_ptr().add(i * 32) as *mut aarch64::uint8x16x4);
+        count += 32;
+    });
+
+    // bytes that do not fit into the simd instruction
+    for i in count..chars.len() {
+        chars.as_ptr().add(i).copy_to(v.as_mut_ptr().add(i), 1);
+        count += 1;
+    }
+    v.set_len(count);
+    s
+}
+
 #[cfg(not(any(
     all(
         any(target_arch = "x86", target_arch = "x86_64"),
-        any(target_feature = "avx", target_feature = "sse"),
-    )
+        any(target_feature = "avx", target_feature = "sse")
+    ),
+    target_arch = "aarch64",
+    target_feature = "neon"
 )))]
 /// Copies chars to the string using a slower method instructions
 unsafe fn fast_copy(chars: &[u8]) -> String {
