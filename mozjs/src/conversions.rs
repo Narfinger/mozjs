@@ -585,8 +585,7 @@ unsafe fn fast_copy(chars: &[u8]) -> String {
         any(target_arch = "x86", target_arch = "x86_64"),
         any(target_feature = "avx", target_feature = "sse")
     ),
-    target_arch = "aarch64",
-    target_feature = "neon"
+    all(target_arch = "aarch64", target_feature = "neon")
 )))]
 /// Copies chars to the string using a slower method instructions
 unsafe fn fast_copy(chars: &[u8]) -> String {
