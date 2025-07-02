@@ -567,8 +567,9 @@ unsafe fn fast_copy(chars: &[u8]) -> String {
     let v = s.as_mut_vec();
     use std::arch::aarch64;
     (0..num_iter).for_each(|i| {
-        let simd = aarch64::vld4_lane_u8(chars.as_ptr().add(i * 32));
-        aarch64::vst4_lane_u8(v.as_ptr().add(i * 32) as *mut u8, simd);
+        /// this is slow as the normal one
+        let simd = aarch64::vld4q_p8(chars.as_ptr().add(i * 32));
+        aarch64::vst4q_p8(v.as_ptr().add(i * 32) as *mut u8, simd);
         count += 32;
     });
 
