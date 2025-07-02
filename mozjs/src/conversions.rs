@@ -559,13 +559,10 @@ unsafe fn fast_copy(chars: &[u8]) -> String {
     s
 }
 
-#[cfg(not(any(
-    all(
-        any(target_arch = "x86", target_arch = "x86_64"),
-        any(target_feature = "avx", target_feature = "sse")
-    ),
-    //all(target_arch = "aarch64", target_feature = "neon")
-)))]
+#[cfg(not(any(all(
+    any(target_arch = "x86", target_arch = "x86_64"),
+    any(target_feature = "avx", target_feature = "sse")
+),)))]
 /// Copies chars to the string using a slower method instructions
 pub unsafe fn fast_copy(chars: &[u8]) -> String {
     let mut v = Vec::with_capacity(chars.len() * 2);
